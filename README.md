@@ -1,4 +1,3 @@
-
 # Multi-Threaded Banking Transaction Processing System
 
 A Java-based banking application designed to process financial transactions safely and efficiently under concurrent workloads.
@@ -7,11 +6,11 @@ The system focuses on transaction consistency, concurrency control, secure accou
 
 ## 1. Project Overview
 
-The Multi-Threaded Banking Transaction Processing System is designed to simulate core banking operations while maintaining data integrity during simultaneous transaction requests.
+The Multi-Threaded Banking Transaction Processing System simulates core banking operations while maintaining data integrity during simultaneous transaction requests.
 
 The application supports customer management, bank account management, deposits, withdrawals, and fund transfers.
 
-A bounded thread pool is used to process multiple transactions concurrently, while database transactions and locking mechanisms protect account balances from race conditions and inconsistent updates.
+A bounded thread pool processes multiple transactions concurrently, while database transactions and concurrency-control mechanisms protect account balances from race conditions and inconsistent updates.
 
 ## 2. Technology Stack
 
@@ -53,6 +52,10 @@ Planned system capabilities:
 
 ```text
 banking-system/
+│
+├── docs/
+│   ├── erd.md
+│   └── database-design.md
 │
 ├── database/
 │   ├── schema.sql
@@ -166,7 +169,76 @@ The application reads database configuration through environment variables.
 
 Hibernate schema generation is disabled. Database schema management will be handled through SQL scripts.
 
-## 8. Running the Application
+## 8. Database Architecture
+
+The database contains seven tables:
+
+| Table | Responsibility |
+|---|---|
+| users | Authentication and authorization information |
+| customers | Customer profile information |
+| accounts | Bank account details and current balances |
+| transactions | Primary financial transaction records |
+| transaction_audit | Transaction processing history |
+| failed_transactions | Structured failure information |
+| security_events | Basic security-related events |
+
+### Entity Relationships
+
+- USERS → CUSTOMERS: One-to-zero-or-one.
+- CUSTOMERS → ACCOUNTS: One-to-many.
+- ACCOUNTS → TRANSACTIONS: One-to-many through source and destination account references.
+- TRANSACTIONS → TRANSACTION_AUDIT: One-to-many.
+- TRANSACTIONS → FAILED_TRANSACTIONS: One-to-zero-or-one.
+- USERS → SECURITY_EVENTS: One-to-many.
+
+### Database Design Documentation
+
+Detailed database design documents are maintained in the `docs/` directory.
+
+| File | Responsibility |
+|---|---|
+| docs/erd.md | Entity Relationship Diagram and table relationships |
+| docs/database-design.md | Table specifications, data types, constraints, indexes, and database design decisions |
+
+## 9. Important Database Design Decisions
+
+### Monetary Precision
+
+| Layer | Data Type |
+|---|---|
+| PostgreSQL | NUMERIC(19,2) |
+| Java | BigDecimal |
+
+Floating-point types such as REAL and DOUBLE PRECISION must not be used for financial balances or transaction amounts.
+
+### Transaction Identification
+
+- `transactions.id` is the internal database primary key.
+- `transactions.transaction_id` is the externally supplied unique transaction identifier.
+- The unique constraint on `transaction_id` supports idempotent transaction processing.
+
+### Transaction Auditing
+
+Transaction records and transaction audit records are maintained separately.
+
+- `transactions` stores the primary financial operation.
+- `transaction_audit` stores multiple processing events associated with that operation.
+- `failed_transactions` stores structured failure information.
+
+Application diagnostic logs are maintained separately using SLF4J and Logback.
+
+### Concurrency Control
+
+The project uses optimistic locking through JPA's `@Version` annotation.
+
+The `accounts` table contains a `version` column to detect conflicting concurrent updates.
+
+When a version mismatch occurs, the application will handle the conflict through controlled retry logic and revalidation of business rules.
+
+Fund transfers must execute atomically. If either account update fails, the entire database transaction must roll back.
+
+## 10. Running the Application
 
 Navigate to the project root:
 
@@ -192,7 +264,7 @@ Once the application starts, access:
 http://localhost:8080
 ```
 
-## 9. Running Tests
+## 11. Running Tests
 
 Execute the complete test suite:
 
@@ -206,33 +278,32 @@ Using Maven Wrapper:
 .\mvnw.cmd clean test
 ```
 
-## 10. Database Scripts
+## 12. Database Scripts
 
 Database-related SQL files are maintained in the root-level `database/` directory.
 
 | File | Responsibility |
 |---|---|
-| schema.sql | Database tables, relationships, constraints and indexes |
+| schema.sql | Database tables, relationships, constraints, and indexes |
 | seed.sql | Initial and sample database records |
 | reports.sql | Reporting queries and transaction analysis |
 
 These scripts will be implemented during database development.
 
-## 11. Concurrency and Transaction Safety
-
-Concurrency control is a central part of this project.
+## 13. Concurrency and Transaction Safety
 
 The system will use:
 
 - A bounded ThreadPoolExecutor for controlled concurrent execution.
 - Database transactions for atomic financial operations.
-- Appropriate database locking to prevent race conditions.
-- Deterministic account locking during fund transfers.
-- Transaction identifiers for traceability and duplicate request prevention.
+- Optimistic locking through JPA `@Version`.
+- Controlled retry handling for optimistic locking conflicts.
+- Deterministic account access ordering during fund transfers.
+- Unique transaction identifiers for duplicate request prevention.
 
 The system must prevent invalid balances and ensure that concurrent withdrawals cannot collectively withdraw more money than an account holds.
 
-## 12. Logging and Auditing
+## 14. Logging and Auditing
 
 The application will maintain separate records for:
 
@@ -242,9 +313,9 @@ The application will maintain separate records for:
 - Transaction audit records.
 - Failed transaction details.
 
-Sensitive information such as passwords must never appear in application logs.
+Sensitive information such as passwords, password hashes, and authentication tokens must never appear in application logs.
 
-## 13. Performance Testing
+## 15. Performance Testing
 
 The system will be evaluated under different concurrent workloads.
 
@@ -263,6 +334,23 @@ The performance evaluation will use at least 50,000 transactions and measure:
 - Transactions per second (TPS).
 - Concurrency-related bottlenecks.
 
-## 14. Development Status
+## 16. Development Status
 
-**Current Phase:** Day 1 — Project Foundation and Environment Setup.
+**Current Phase:** Day 2 — Database Design and Project Foundation.
+
+### Completed
+
+- Spring Boot project initialization.
+- PostgreSQL database setup and connectivity.
+- Git repository initialization and GitHub integration.
+- Database architecture finalized with seven tables.
+- Entity Relationship Diagram documentation created.
+- Database design specification created.
+- Optimistic locking strategy selected.
+
+### In Progress
+
+- README documentation update.
+- JPA entity implementation.
+- Entity relationships and database constraints.
+- Hibernate configuration and database verification.
