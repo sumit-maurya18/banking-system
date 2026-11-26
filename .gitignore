@@ -27,7 +27,7 @@ logs/
 .sts4-cache
 
 # INTELLIJ IDEA
-.idea_backup/
+.idea/
 *.iws
 *.iml
 *.ipr
