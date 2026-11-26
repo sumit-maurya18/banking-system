@@ -8,9 +8,9 @@ The system focuses on transaction consistency, concurrency control, secure accou
 
 The Multi-Threaded Banking Transaction Processing System simulates core banking operations while maintaining data integrity during simultaneous transaction requests.
 
-The application supports customer management, bank account management, deposits, withdrawals, and fund transfers.
+The application is designed to support customer management, bank account management, deposits, withdrawals, and fund transfers.
 
-A bounded thread pool processes multiple transactions concurrently, while database transactions and concurrency-control mechanisms protect account balances from race conditions and inconsistent updates.
+A bounded thread pool will process multiple transactions concurrently, while database transactions and concurrency-control mechanisms will protect account balances from race conditions and inconsistent updates.
 
 ## 2. Technology Stack
 
@@ -80,8 +80,16 @@ banking-system/
 │       └── java/
 │           └── com/banking/bankingSystem/
 │               ├── BankingSystemApplicationTests.java
-│               └── entity/
-│                   └── EntityPersistenceTest.java
+│               ├── entity/
+│               │   └── EntityPersistenceTest.java
+│               └── repository/
+│                   ├── UserRepositoryTest.java
+│                   ├── AccountRepositoryTest.java
+│                   ├── CustomerRepositoryTest.java
+│                   ├── TransactionRepositoryTest.java
+│                   ├── FailedTransactionRepositoryTest.java
+│                   ├── TransactionAuditRepositoryTest.java
+│                   └── SecurityEventRepositoryTest.java
 │
 ├── .gitignore
 ├── pom.xml
@@ -99,7 +107,7 @@ Install the following software before running the application:
 - Git
 - IntelliJ IDEA or another Java IDE
 
-Maven can be executed using the included Maven Wrapper.
+Maven can also be executed using the included Maven Wrapper.
 
 Verify the installations:
 
@@ -167,7 +175,7 @@ src/main/resources/application.properties
 
 The application reads database configuration through environment variables.
 
-Hibernate schema generation is disabled. Database schema management will be handled through SQL scripts.
+Hibernate schema generation is disabled. Database schema management is handled through SQL scripts.
 
 ## 8. Database Architecture
 
@@ -228,15 +236,32 @@ Transaction records and transaction audit records are maintained separately.
 
 Application diagnostic logs are maintained separately using SLF4J and Logback.
 
+### Security Event Outcome
+
+Security event outcomes are represented using the `SecurityEventOutcome` Java enum.
+
+Supported values:
+
+- `SUCCESS`
+- `FAILURE`
+
+JPA persists enum values using:
+
+```java
+@Enumerated(EnumType.STRING)
+```
+
+The PostgreSQL CHECK constraint enforces the same allowed values.
+
 ### Concurrency Control
 
 The project uses optimistic locking through JPA's `@Version` annotation.
 
 The `accounts` table contains a `version` column to detect conflicting concurrent updates.
 
-When a version mismatch occurs, the application will handle the conflict through controlled retry logic and revalidation of business rules.
+Controlled retry logic and business-rule revalidation will be implemented to handle version conflicts.
 
-Fund transfers must execute atomically. If either account update fails, the entire database transaction must roll back.
+Fund transfers are designed to execute atomically. If either account update fails, the entire database transaction must roll back.
 
 ## 10. Running the Application
 
@@ -278,7 +303,71 @@ Using Maven Wrapper:
 .\mvnw.cmd clean test
 ```
 
-## 12. Database Scripts
+Run an individual test class:
+
+```powershell
+mvn test -Dtest=SecurityEventRepositoryTest
+```
+
+## 12. Repository Layer
+
+Implemented seven Spring Data JPA repository interfaces under:
+
+```text
+src/main/java/com/banking/bankingSystem/repository/
+```
+
+### Implemented Repositories
+
+| Repository | Query Capabilities |
+|---|---|
+| UserRepository | Find users by email and role |
+| AccountRepository | Find accounts by account number and customer ID |
+| CustomerRepository | Find customers by user ID and phone number |
+| TransactionRepository | Find transactions by transaction ID, source account, destination account and status |
+| FailedTransactionRepository | Find failed transactions by transaction ID and error category |
+| TransactionAuditRepository | Find transaction audit records by transaction ID and chronological order |
+| SecurityEventRepository | Find security events by user ID, event type and outcome |
+
+All repository interfaces extend `JpaRepository<Entity, Long>`.
+
+### Query Implementation
+
+The repository layer uses Spring Data JPA derived query methods to retrieve records based on entity properties and relationships.
+
+A custom JPQL query is implemented in `UserRepository` to retrieve users by role.
+
+Example:
+
+```java
+@Query("SELECT u FROM User u WHERE u.role = :role")
+List<User> findUsersByRole(@Param("role") UserRole role);
+```
+
+Nested property navigation is used for queries involving entity relationships, such as customer IDs and account IDs.
+
+### Repository Integration Testing
+
+Repository integration tests use:
+
+- JUnit 5
+- Spring Boot `@DataJpaTest`
+- Spring Data JPA
+- Hibernate
+- PostgreSQL
+- EntityManager where required
+
+The tests validate repository query behavior against the configured PostgreSQL database.
+
+Test coverage includes:
+
+- Successful record retrieval.
+- Queries involving entity relationships.
+- Queries involving enum values.
+- Empty-result scenarios.
+- Custom JPQL query execution.
+
+## 13. Database Scripts
 
 | File | Responsibility | Status |
 |---|---|---|
@@ -286,10 +375,9 @@ Using Maven Wrapper:
 | `database/seed.sql` | Initial and sample database records | Planned |
 | `database/reports.sql` | Reporting queries and transaction analysis | Planned |
 
+## 14. Concurrency and Transaction Safety
 
-## 13. Concurrency and Transaction Safety
-
-The system will use:
+Planned concurrency and transaction-safety mechanisms:
 
 - A bounded ThreadPoolExecutor for controlled concurrent execution.
 - Database transactions for atomic financial operations.
@@ -300,9 +388,9 @@ The system will use:
 
 The system must prevent invalid balances and ensure that concurrent withdrawals cannot collectively withdraw more money than an account holds.
 
-## 14. Logging and Auditing
+## 15. Logging and Auditing
 
-The application will maintain separate records for:
+The application architecture includes separate records for:
 
 - Application execution logs.
 - Security-related events.
@@ -312,7 +400,7 @@ The application will maintain separate records for:
 
 Sensitive information such as passwords, password hashes, and authentication tokens must never appear in application logs.
 
-## 15. Performance Testing
+## 16. Performance Testing
 
 The system will be evaluated under different concurrent workloads.
 
@@ -331,15 +419,22 @@ The performance evaluation will use at least 50,000 transactions and measure:
 - Transactions per second (TPS).
 - Concurrency-related bottlenecks.
 
-## 16. Development Status
+## 17. Development Status
 
-**Current Phase:** Day 2 — Database Design and Project Foundation.
+**Current Phase: Day 3 Completed — Repository Layer and Integration Testing.**
 
-### Completed
+### Completed Work
+
+#### Day 1 — Project Initialization and Environment Setup
 
 - Spring Boot project initialization.
+- Maven project configuration.
 - PostgreSQL database setup and connectivity.
 - Git repository initialization and GitHub integration.
+- Project package structure established.
+
+#### Day 2 — Database Design and Entity Implementation
+
 - Database architecture finalized with seven tables.
 - Entity Relationship Diagram documentation created.
 - Database design specification created.
@@ -348,11 +443,31 @@ The performance evaluation will use at least 50,000 transactions and measure:
 - Entity relationships and enum mappings implemented.
 - Optimistic locking configured through JPA `@Version`.
 - Hibernate schema validation successful.
-- Entity persistence test successful.
+- Entity persistence tests implemented and passed.
+
+#### Day 3 — Repository Layer and Integration Testing
+
+- Seven Spring Data JPA repository interfaces implemented.
+- Derived query methods implemented across all repositories.
+- Custom JPQL query implemented in UserRepository.
+- Repository integration test classes implemented.
+- Repository queries tested against PostgreSQL.
+- SecurityEventOutcome enum introduced with `SUCCESS` and `FAILURE`.
+- SecurityEvent entity updated to use `@Enumerated(EnumType.STRING)`.
+- SecurityEventRepository updated to use the enum type.
+- Entity persistence tests updated after enum refactoring.
+- Repository test compilation and execution issues resolved.
+- Test suite executed successfully.
+
+### Development Progress
+
+| Day | Focus | Status |
+|---|---|---|
+| Day 1 | Project Initialization | Completed |
+| Day 2 | Database Design and Entities | Completed |
+| Day 3 | Repository Layer and Integration Testing | Completed |
+| Day 4 | Service Layer and Business Logic | Upcoming |
 
 ### Next Phase
 
-- Day 3 — Repository Layer and Database Access.
-- Spring Data JPA repository interfaces.
-- Repository query methods.
-- Database retrieval and persistence operations.
+**Day 4 — Service Layer and Business Logic**

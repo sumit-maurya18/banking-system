@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 
 import java.time.Instant;
 
+import com.banking.bankingSystem.enums.SecurityEventOutcome;
+
 @Entity
 @Table(name = "security_events")
 public class SecurityEvent {
@@ -21,8 +23,9 @@ public class SecurityEvent {
     @Column(name = "event_type", nullable = false, length = 30)
     private String eventType;
 
-    @Column(name = "outcome", nullable = false, length = 20)
-    private String outcome;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private SecurityEventOutcome outcome;
 
     @Column(name = "ip_address", length = 45)
     private String ipAddress;
@@ -66,11 +69,11 @@ public class SecurityEvent {
         this.eventType = eventType;
     }
 
-    public String getOutcome() {
+    public SecurityEventOutcome getOutcome() {
         return outcome;
     }
 
-    public void setOutcome(String outcome) {
+    public void setOutcome(SecurityEventOutcome outcome) {
         this.outcome = outcome;
     }
 
