@@ -57,11 +57,6 @@ banking-system/
 │   ├── erd.md
 │   └── database-design.md
 │
-├── database/
-│   ├── schema.sql
-│   ├── seed.sql
-│   └── reports.sql
-│
 ├── src/
 │   ├── main/
 │   │   ├── java/
@@ -78,10 +73,15 @@ banking-system/
 │   │   └── resources/
 │   │       ├── static/
 │   │       ├── templates/
-│   │       └── application.properties
+│   │       ├── application.properties
+│   │       └── schema.sql
 │   │
 │   └── test/
 │       └── java/
+│           └── com/banking/bankingSystem/
+│               ├── BankingSystemApplicationTests.java
+│               └── entity/
+│                   └── EntityPersistenceTest.java
 │
 ├── .gitignore
 ├── pom.xml
@@ -280,15 +280,12 @@ Using Maven Wrapper:
 
 ## 12. Database Scripts
 
-Database-related SQL files are maintained in the root-level `database/` directory.
+| File | Responsibility | Status |
+|---|---|---|
+| `src/main/resources/schema.sql` | Database tables, relationships, constraints, and indexes | Completed |
+| `database/seed.sql` | Initial and sample database records | Planned |
+| `database/reports.sql` | Reporting queries and transaction analysis | Planned |
 
-| File | Responsibility |
-|---|---|
-| schema.sql | Database tables, relationships, constraints, and indexes |
-| seed.sql | Initial and sample database records |
-| reports.sql | Reporting queries and transaction analysis |
-
-These scripts will be implemented during database development.
 
 ## 13. Concurrency and Transaction Safety
 
@@ -346,11 +343,16 @@ The performance evaluation will use at least 50,000 transactions and measure:
 - Database architecture finalized with seven tables.
 - Entity Relationship Diagram documentation created.
 - Database design specification created.
-- Optimistic locking strategy selected.
+- PostgreSQL schema created and executed.
+- Seven JPA entity classes implemented.
+- Entity relationships and enum mappings implemented.
+- Optimistic locking configured through JPA `@Version`.
+- Hibernate schema validation successful.
+- Entity persistence test successful.
 
-### In Progress
+### Next Phase
 
-- README documentation update.
-- JPA entity implementation.
-- Entity relationships and database constraints.
-- Hibernate configuration and database verification.
+- Day 3 — Repository Layer and Database Access.
+- Spring Data JPA repository interfaces.
+- Repository query methods.
+- Database retrieval and persistence operations.
