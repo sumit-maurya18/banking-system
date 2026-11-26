@@ -7,6 +7,7 @@ import com.banking.bankingSystem.enums.TransactionStatus;
 import com.banking.bankingSystem.enums.TransactionType;
 import com.banking.bankingSystem.enums.UserRole;
 import com.banking.bankingSystem.enums.UserStatus;
+import com.banking.bankingSystem.enums.SecurityEventOutcome;
 
 import jakarta.persistence.EntityManager;
 
@@ -110,7 +111,7 @@ class EntityPersistenceTest {
         SecurityEvent securityEvent = new SecurityEvent();
         securityEvent.setUser(user);
         securityEvent.setEventType("LOGIN");
-        securityEvent.setOutcome("SUCCESS");
+        securityEvent.setOutcome(SecurityEventOutcome.SUCCESS);
         securityEvent.setIpAddress("127.0.0.1");
         securityEvent.setDescription("Test login event");
 
