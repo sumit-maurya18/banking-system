@@ -419,9 +419,10 @@ The performance evaluation will use at least 50,000 transactions and measure:
 - Transactions per second (TPS).
 - Concurrency-related bottlenecks.
 
+
 ## 17. Development Status
 
-**Current Phase: Day 3 Completed — Repository Layer and Integration Testing.**
+**Current Phase: Day 4 Completed — Service Layer and Transaction Processing.**
 
 ### Completed Work
 
@@ -459,6 +460,65 @@ The performance evaluation will use at least 50,000 transactions and measure:
 - Repository test compilation and execution issues resolved.
 - Test suite executed successfully.
 
+#### Day 4 — Service Layer and Transaction Processing
+
+**Service Implementation**
+
+- AccountService implemented for account retrieval and validation.
+- TransactionService implemented with deposit and withdrawal operations.
+- Constructor-based dependency injection used.
+- Spring declarative transaction management implemented using `@Transactional`.
+
+**Deposit Processing**
+
+- Transaction amount validation.
+- Account retrieval and account status validation.
+- Pending transaction creation.
+- Account balance update using `BigDecimal`.
+- Successful or rejected transaction status handling.
+- Transaction persistence and audit recording.
+
+**Withdrawal Processing**
+
+- Transaction amount validation.
+- Account retrieval and account status validation.
+- Pending transaction creation.
+- Sufficient balance verification.
+- Balance deduction for valid withdrawals.
+- Rejection when account is inactive or balance is insufficient.
+- Transaction persistence and audit recording.
+
+**Validation and Transaction Safety**
+
+- Null transaction amounts rejected.
+- Zero and negative transaction amounts rejected.
+- Amounts with more than two decimal places rejected.
+- Maximum transaction amount restricted to `99999999999999999.99`.
+- Maximum amount aligned with database monetary precision `NUMERIC(19,2)`.
+- Invalid amounts rejected before account retrieval and transaction processing.
+- Transaction identifiers generated using UUID.
+- Transaction completion timestamps maintained using `Instant`.
+- Processing duration measured using `System.nanoTime()`.
+
+**Transaction Auditing**
+
+- TransactionAuditService integrated with transaction processing.
+- Successful operations generate completion audit records.
+- Rejected operations generate rejection audit records.
+- Audit recording participates in the existing database transaction.
+
+**Testing**
+
+- TransactionServiceImplementationTest implemented.
+- Deposit and withdrawal unit tests added.
+- Invalid amount validation tested.
+- Maximum transaction amount boundary tested.
+- Inactive account rejection tested.
+- Insufficient balance rejection tested.
+- TransactionServiceIntegrationTest implemented.
+- PostgreSQL integration tests cover deposit, withdrawal, insufficient balance rejection, and inactive account rejection.
+- Integration tests verify transaction persistence, balance updates, and audit records.
+
 ### Development Progress
 
 | Day | Focus | Status |
@@ -466,8 +526,9 @@ The performance evaluation will use at least 50,000 transactions and measure:
 | Day 1 | Project Initialization | Completed |
 | Day 2 | Database Design and Entities | Completed |
 | Day 3 | Repository Layer and Integration Testing | Completed |
-| Day 4 | Service Layer and Business Logic | Upcoming |
+| Day 4 | Service Layer and Transaction Processing | Completed |
+| Day 5 | Exception Handling and Validation Improvements | Upcoming |
 
 ### Next Phase
 
-**Day 4 — Service Layer and Business Logic**
+**Day 5 — Exception Handling and Validation Improvements**
