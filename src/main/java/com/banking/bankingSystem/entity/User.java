@@ -1,4 +1,3 @@
-
 package com.banking.bankingSystem.entity;
 
 import com.banking.bankingSystem.enums.UserRole;
