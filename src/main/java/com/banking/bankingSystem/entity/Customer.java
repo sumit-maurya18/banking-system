@@ -1,4 +1,3 @@
-
 package com.banking.bankingSystem.entity;
 
 import jakarta.persistence.*;
