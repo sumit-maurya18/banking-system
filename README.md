@@ -519,6 +519,28 @@ The performance evaluation will use at least 50,000 transactions and measure:
 - PostgreSQL integration tests cover deposit, withdrawal, insufficient balance rejection, and inactive account rejection.
 - Integration tests verify transaction persistence, balance updates, and audit records.
 
+#### Day 5 — Exception Handling and Validation Improvements
+
+**Exception Handling**
+- Introduced `InvalidTransactionAmountException`.
+- Updated transaction amount validation to use the custom exception.
+- Preserved compatibility by extending `IllegalArgumentException`.
+- Retained entity-level invariant protection in `Account.setBalance()`.
+
+**Entity Validation**
+- Added Jakarta Bean Validation constraints to Account.
+- Added Jakarta Bean Validation constraints to Customer.
+- Validated account numbers, customer relationships, account types, account status, and balances.
+- Validated customer names, phone numbers, and user relationships.
+- Enforced monetary precision using `@Digits(integer = 17, fraction = 2)`.
+
+**Testing**
+- Created `EntityValidationTest`.
+- Tested invalid and valid account properties.
+- Tested invalid and valid customer properties.
+- Resolved four initial validation test failures.
+- Full Maven test suite passed: 80 tests, 0 failures, 0 errors.
+- 
 ### Development Progress
 
 | Day | Focus | Status |
@@ -527,8 +549,9 @@ The performance evaluation will use at least 50,000 transactions and measure:
 | Day 2 | Database Design and Entities | Completed |
 | Day 3 | Repository Layer and Integration Testing | Completed |
 | Day 4 | Service Layer and Transaction Processing | Completed |
-| Day 5 | Exception Handling and Validation Improvements | Upcoming |
+| Day 5 | Exception Handling and Validation Improvements | Completed |
+| Day 6 | Account-to-Account Fund Transfer | Upcoming |
 
 ### Next Phase
 
-**Day 5 — Exception Handling and Validation Improvements**
+**Day 6 — Account-to-Account Fund Transfer**
