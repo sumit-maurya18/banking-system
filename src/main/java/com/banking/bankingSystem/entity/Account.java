@@ -3,6 +3,7 @@ package com.banking.bankingSystem.entity;
 import com.banking.bankingSystem.enums.AccountStatus;
 import com.banking.bankingSystem.enums.AccountType;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -16,21 +17,29 @@ public class Account {
     @Column(name = "account_id")
     private Long accountId;
 
+    @NotBlank
+    @Size(max = 20)
     @Column(name = "account_number", nullable = false, unique = true, length = 20)
     private String accountNumber;
 
     // Owning side of the Customer-Account relationship
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "account_type", nullable = false, length = 20)
     private AccountType accountType;
 
+    @NotNull
+    @DecimalMin("0.00")
+    @Digits(integer = 17, fraction = 2)
     @Column(name = "balance", nullable = false, precision = 19, scale = 2)
     private BigDecimal balance = BigDecimal.ZERO;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     private AccountStatus status;

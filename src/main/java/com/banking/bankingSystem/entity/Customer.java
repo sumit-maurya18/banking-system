@@ -1,5 +1,7 @@
 package com.banking.bankingSystem.entity;
 
+import jakarta.validation.constraints.*;
+
 import jakarta.persistence.*;
 
 import java.time.Instant;
@@ -17,13 +19,18 @@ public class Customer {
     private Long customerId;
 
     // Owning side of the one-to-one relationship
+    @NotNull
     @OneToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
+    @NotBlank
+    @Size(max = 100)
     @Column(name = "full_name", nullable = false, length = 100)
     private String fullName;
 
+    @NotBlank
+    @Size(max = 15)
     @Column(name = "phone_number", nullable = false, unique = true, length = 15)
     private String phoneNumber;
 

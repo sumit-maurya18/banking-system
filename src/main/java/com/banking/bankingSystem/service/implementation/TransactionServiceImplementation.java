@@ -1,4 +1,3 @@
-
 package com.banking.bankingSystem.service.implementation;
 
 import com.banking.bankingSystem.entity.Account;
@@ -16,6 +15,7 @@ import com.banking.bankingSystem.service.TransactionAuditService;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.banking.bankingSystem.exceptions.InvalidTransactionAmountException;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -210,30 +210,32 @@ public class TransactionServiceImplementation implements TransactionService {
     // AMOUNT VALIDATION
     // --------------------------------------------------
 
+
     private void validateAmount(BigDecimal amount) {
 
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
 
-            throw new IllegalArgumentException(
+            throw new InvalidTransactionAmountException(
                     "Transaction amount must be greater than zero."
             );
         }
 
         if (amount.stripTrailingZeros().scale() > 2) {
 
-            throw new IllegalArgumentException(
+            throw new InvalidTransactionAmountException(
                     "Transaction amount cannot have more than two decimal places."
             );
         }
 
         if (amount.compareTo(MAX_TRANSACTION_AMOUNT) > 0) {
 
-            throw new IllegalArgumentException(
+            throw new InvalidTransactionAmountException(
                     "Transaction amount exceeds the maximum supported limit of "
                             + MAX_TRANSACTION_AMOUNT.toPlainString()
             );
         }
     }
+
 
     // --------------------------------------------------
     // TRANSACTION CREATION
